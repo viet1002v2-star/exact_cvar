@@ -48,7 +48,6 @@ def cvar_saa(env, Fsorted, xbr_np, A_np, B_np, alpha):
     part = np.partition(vals, N - m)[N - m:]
     return float(part.mean())
 
-# --------------------------- CVaR: Theorem-1 order statistics (O(p log N)) ---------------------------
 def cvar_os(env, Fsorted, pre, alpha):
     A, B, xbr = env
     N = len(Fsorted)
@@ -59,7 +58,6 @@ def cvar_os(env, Fsorted, pre, alpha):
         if k < 0: k = 0
         if k >= len(A): k = len(A) - 1
         return A[k] + B[k] * x
-    # valley i* by ternary search on the unimodal phi
     lo, hi = 0, N - 1
     while hi - lo > 2:
         m1 = lo + (hi - lo) // 3
@@ -231,7 +229,6 @@ def selftest():
     print(f"  {'PASS (machine precision)' if worst < 1e-8 else 'FAIL'}")
 
 def main():
-    print("hardware: <fill in your CPU>; Python", sys.version.split()[0], "+ numpy", np.__version__)
     print()
 
     # ===================== (A) the crux: is p small, and flat in route length? =====================
