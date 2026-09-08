@@ -1,5 +1,6 @@
 import bisect
 import math
+import sys
 import random
 import time
 import numpy as np
@@ -342,18 +343,18 @@ def experiment_pieces(nroutes=10000):
               f"p99={q[2]:.0f} max={pc.max()}")
         out[tag] = (pc, lens)
     for tag in ["dominant (0.85)", "mixed (0.50)"]:
-    pc, lens = out[tag]
-    print(f"  {tag}: mean p vs exact route-wise H_k+1 prediction:")
-    print("    %-10s %6s %11s %9s %8s" %
-          ("bucket", "kbar", "H_k+1", "mean p", "err"))
-    for lo, hi in [(2, 9), (10, 19), (20, 29), (30, 39), (40, 50)]:
-        m = (lens >= lo) & (lens <= hi)
-        kb = lens[m].mean()
-        pred = np.mean([H(k) + 1.0 for k in lens[m]])
-        obs = pc[m].mean()
-        print(f"    {f'{lo}-{hi}':<10} {kb:6.1f} {pred:11.3f} "
-              f"{obs:9.3f} {100*(obs-pred)/pred:7.2f}%")
-    print()
+        pc, lens = out[tag]
+        print(f"  {tag}: mean p vs exact route-wise H_k+1 prediction:")
+        print("    %-10s %6s %11s %9s %8s" %
+              ("bucket", "kbar", "H_k+1", "mean p", "err"))
+        for lo, hi in [(2, 9), (10, 19), (20, 29), (30, 39), (40, 50)]:
+            m = (lens >= lo) & (lens <= hi)
+            kb = lens[m].mean()
+            pred = np.mean([H(k) + 1.0 for k in lens[m]])
+            obs = pc[m].mean()
+            print(f"    {f'{lo}-{hi}':<10} {kb:6.1f} {pred:11.3f} "
+                  f"{obs:9.3f} {100*(obs-pred)/pred:7.2f}%")
+        print()
 
 
 def experiment_kernel(nroutes=100, Ns=(100, 1000, 10000, 100000, 1000000, 10000000)):
