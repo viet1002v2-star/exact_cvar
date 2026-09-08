@@ -1,5 +1,9 @@
-import sys, math, bisect, time
+import bisect
+import math
+import random
+import time
 import numpy as np
+import scipy.stats as st
 
 # ============================ upper envelope of lines y = a + b x ============================
 def upper_envelope(lines):
@@ -337,14 +341,18 @@ def experiment_pieces(nroutes=10000):
         print(f"  {tag:<18} mean={pc.mean():.2f} median={q[0]:.0f} p90={q[1]:.0f} "
               f"p99={q[2]:.0f} max={pc.max()}")
         out[tag] = (pc, lens)
-    pc, lens = out["dominant (0.85)"]
-    print("  mean p vs Sparre Andersen H_k+1:")
-    print("    %-10s %6s %11s %9s %8s" % ("bucket", "kbar", "H_k+1", "mean p", "err"))
+    for tag in ["dominant (0.85)", "mixed (0.50)"]:
+    pc, lens = out[tag]
+    print(f"  {tag}: mean p vs exact route-wise H_k+1 prediction:")
+    print("    %-10s %6s %11s %9s %8s" %
+          ("bucket", "kbar", "H_k+1", "mean p", "err"))
     for lo, hi in [(2, 9), (10, 19), (20, 29), (30, 39), (40, 50)]:
         m = (lens >= lo) & (lens <= hi)
-        kb = lens[m].mean(); pred = H(round(kb)) + 1.0; obs = pc[m].mean()
-        print(f"    {f'{lo}-{hi}':<10} {kb:6.1f} {pred:11.2f} {obs:9.2f} "
-              f"{100*(obs-pred)/pred:7.1f}%")
+        kb = lens[m].mean()
+        pred = np.mean([H(k) + 1.0 for k in lens[m]])
+        obs = pc[m].mean()
+        print(f"    {f'{lo}-{hi}':<10} {kb:6.1f} {pred:11.3f} "
+              f"{obs:9.3f} {100*(obs-pred)/pred:7.2f}%")
     print()
 
 
@@ -408,16 +416,7 @@ def experiment_pricing(n=10, seed=12345, Q=65.0, Ns=(1000, 10000, 100000), repea
 
 
 if __name__ == "__main__":
-    arg = sys.argv[1] if len(sys.argv) > 1 else ""
-    if arg == "--selftest":
-        sys.exit(selftest())
-    elif arg == "--pricing-only":
-        experiment_pricing()
-    elif arg == "--quick":
-        experiment_pieces(2000)
-        experiment_kernel(20, (1000, 10000, 100000, 1000000))
-        experiment_pricing(repeats=1)
-    else:
-        experiment_pieces()
-        experiment_kernel()
-        experiment_pricing()
+    rc = selftest()
+    if rc == 0:
+        experiment_pieces(nroutes=10000)
+    sys.exit(rc)
